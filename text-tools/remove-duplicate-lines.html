@@ -1,0 +1,162 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remove Duplicate Lines - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Remove duplicate or repeated lines from text online for free."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .duplicate-tool {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .duplicate-tool h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .duplicate-tool textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .duplicate-tool button {
+        padding: 12px 18px;
+        margin: 12px 6px 0 0;
+        border: none;
+        border-radius: 7px;
+        background: #1769aa;
+        color: white;
+        cursor: pointer;
+      }
+
+      .duplicate-tool .clear {
+        background: #555;
+      }
+
+      .duplicate-tool .copy {
+        background: #16834a;
+      }
+
+      .duplicate-result {
+        margin-top: 18px;
+        padding: 15px;
+        background: #eaf4ff;
+        border-radius: 8px;
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Text Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="duplicate-tool">
+      <h1>Remove Duplicate Lines</h1>
+      <p>Paste your text below to remove repeated lines.</p>
+
+      <textarea
+        id="inputText"
+        placeholder="Enter your lines here..."
+      ></textarea>
+
+      <div>
+        <button onclick="removeDuplicates()">Remove Duplicates</button>
+        <button class="copy" onclick="copyResult()">Copy Result</button>
+        <button class="clear" onclick="clearText()">Clear</button>
+      </div>
+
+      <div class="duplicate-result" id="resultBox">
+        <h3>Cleaned Text</h3>
+        <textarea id="outputText" readonly></textarea>
+        <p id="summary"></p>
+      </div>
+    </main>
+
+    <script>
+      function removeDuplicates() {
+        const input = document.getElementById("inputText").value;
+
+        if (!input.trim()) {
+          alert("Please enter some text first.");
+          return;
+        }
+
+        const lines = input.split(/\r?\n/);
+        const seen = new Set();
+        const uniqueLines = [];
+
+        lines.forEach((line) => {
+          const key = line.trim().toLowerCase();
+
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueLines.push(line);
+          }
+        });
+
+        const removed = lines.length - uniqueLines.length;
+
+        document.getElementById("outputText").value = uniqueLines.join("\n");
+        document.getElementById("summary").textContent =
+          "Original lines: " +
+          lines.length +
+          " | Unique lines: " +
+          uniqueLines.length +
+          " | Duplicates removed: " +
+          removed;
+
+        document.getElementById("resultBox").style.display = "block";
+      }
+
+      async function copyResult() {
+        const output = document.getElementById("outputText");
+
+        if (!output.value) {
+          alert("Please remove duplicates first.");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(output.value);
+          alert("Result copied successfully!");
+        } catch {
+          output.select();
+          document.execCommand("copy");
+          alert("Result copied!");
+        }
+      }
+
+      function clearText() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+        document.getElementById("resultBox").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
+```

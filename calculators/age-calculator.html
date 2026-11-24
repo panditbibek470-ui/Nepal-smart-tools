@@ -1,0 +1,390 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>BS & AD Age Calculator - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Calculate your exact age using Nepali Bikram Sambat (BS) or English Gregorian (AD) dates."
+    />
+
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <!-- Nepali date conversion library -->
+    <script src="https://cdn.jsdelivr.net/npm/nepalipatrojs/dist/nepali-patro-js.umd.js"></script>
+
+    <style>
+      .calculator-container {
+        max-width: 650px;
+        margin: 60px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+      }
+
+      .calculator-container h1 {
+        color: #155eef;
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .calculator-container p {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 20px;
+      }
+
+      .calculator-container label {
+        display: block;
+        font-weight: bold;
+        margin: 15px 0 8px;
+      }
+
+      .calculator-container input,
+      .calculator-container select {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 16px;
+        background: white;
+      }
+
+      .bs-fields {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .calculate-btn {
+        width: 100%;
+        margin-top: 25px;
+        padding: 15px;
+        background: #155eef;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .calculate-btn:hover {
+        background: #0847c7;
+      }
+
+      #result {
+        display: none;
+        margin-top: 25px;
+        padding: 20px;
+        background: #eff6ff;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      #result h2 {
+        color: #155eef;
+        margin-bottom: 15px;
+      }
+
+      .age-number {
+        font-size: 23px;
+        font-weight: bold;
+        color: #155eef;
+      }
+
+      #error {
+        display: none;
+        color: #dc2626;
+        background: #fef2f2;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 25px;
+        color: #155eef;
+        text-decoration: none;
+      }
+
+      @media (max-width: 480px) {
+        .calculator-container {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Calculators</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="calculator-container">
+        <h1>🎂 Age Calculator</h1>
+        <p>Calculate your exact age in BS or AD.</p>
+
+        <label for="calendarType">Select Calendar</label>
+
+        <select id="calendarType" onchange="changeCalendar()">
+          <option value="BS" selected>BS - Bikram Sambat (Nepali)</option>
+          <option value="AD">AD - Gregorian (English)</option>
+        </select>
+
+        <div id="bsInput">
+          <label>Enter your Nepali date of birth</label>
+
+          <div class="bs-fields">
+            <input
+              type="number"
+              id="bsYear"
+              placeholder="Year e.g. 2061"
+              min="2000"
+              max="2099"
+            />
+
+            <input
+              type="number"
+              id="bsMonth"
+              placeholder="Month 1-12"
+              min="1"
+              max="12"
+            />
+
+            <input
+              type="number"
+              id="bsDay"
+              placeholder="Day"
+              min="1"
+              max="32"
+            />
+          </div>
+        </div>
+
+        <div id="adInput" style="display: none">
+          <label for="birthDate">Enter your English date of birth</label>
+          <input type="date" id="birthDate" />
+        </div>
+
+        <button class="calculate-btn" onclick="calculateAge()">
+          Calculate My Age
+        </button>
+
+        <div id="error" role="alert"></div>
+
+        <div id="result" aria-live="polite">
+          <h2>Your Age</h2>
+          <div class="age-number" id="ageText"></div>
+          <p id="birthAD"></p>
+          <p id="totalDays"></p>
+          <p id="nextBirthday"></p>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Home</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <h3>🇳🇵 Nepal Smart Tools</h3>
+        <p>Free online tools for everyone.</p>
+        <p>© <span id="currentYear"></span> Nepal Smart Tools</p>
+      </div>
+    </footer>
+
+    <script>
+      function changeCalendar() {
+        const type = document.getElementById("calendarType").value;
+
+        document.getElementById("bsInput").style.display =
+          type === "BS" ? "block" : "none";
+
+        document.getElementById("adInput").style.display =
+          type === "AD" ? "block" : "none";
+
+        document.getElementById("result").style.display = "none";
+        document.getElementById("error").style.display = "none";
+      }
+
+      function showError(message) {
+        const error = document.getElementById("error");
+        error.textContent = message;
+        error.style.display = "block";
+        document.getElementById("result").style.display = "none";
+      }
+
+      function calculateAge() {
+        const type = document.getElementById("calendarType").value;
+        let birth;
+
+        try {
+          if (typeof NepaliPatro === "undefined") {
+            showError(
+              "Date conversion library could not load. Check your internet connection and refresh.",
+            );
+            return;
+          }
+
+          if (type === "BS") {
+            const year = Number(document.getElementById("bsYear").value);
+            const month = Number(document.getElementById("bsMonth").value);
+            const day = Number(document.getElementById("bsDay").value);
+
+            if (!year || !month || !day) {
+              showError("Please enter your complete BS date.");
+              return;
+            }
+
+            if (month < 1 || month > 12) {
+              showError("Please enter a valid BS month (1–12).");
+              return;
+            }
+
+            const daysInMonth = NepaliPatro.getDaysInMonth(year, month);
+
+            if (!daysInMonth || day < 1 || day > daysInMonth) {
+              showError(
+                "Invalid BS date. Please check the year, month and day.",
+              );
+              return;
+            }
+
+            birth = NepaliPatro.convertBSToAD({
+              year: year,
+              month: month,
+              day: day,
+            });
+          } else {
+            const value = document.getElementById("birthDate").value;
+
+            if (!value) {
+              showError("Please select your AD date of birth.");
+              return;
+            }
+
+            const parts = value.split("-").map(Number);
+            birth = new Date(parts[0], parts[1] - 1, parts[2]);
+
+            if (
+              birth.getFullYear() !== parts[0] ||
+              birth.getMonth() !== parts[1] - 1 ||
+              birth.getDate() !== parts[2]
+            ) {
+              showError("Please enter a valid AD date.");
+              return;
+            }
+          }
+        } catch (error) {
+          showError(
+            "Unable to convert this date. Please check the date and try again.",
+          );
+          return;
+        }
+
+        if (!(birth instanceof Date) || isNaN(birth.getTime())) {
+          showError("Invalid birth date. Please try again.");
+          return;
+        }
+
+        birth = new Date(
+          birth.getFullYear(),
+          birth.getMonth(),
+          birth.getDate(),
+        );
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (birth > today) {
+          showError("Date of birth cannot be in the future.");
+          return;
+        }
+
+        let years = today.getFullYear() - birth.getFullYear();
+        let months = today.getMonth() - birth.getMonth();
+        let days = today.getDate() - birth.getDate();
+
+        if (days < 0) {
+          months--;
+
+          const previousMonthDays = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            0,
+          ).getDate();
+
+          days += previousMonthDays;
+        }
+
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+
+        const millisecondsPerDay = 86400000;
+
+        const totalDays = Math.round(
+          (Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) -
+            Date.UTC(birth.getFullYear(), birth.getMonth(), birth.getDate())) /
+            millisecondsPerDay,
+        );
+
+        let nextBirthday = new Date(
+          today.getFullYear(),
+          birth.getMonth(),
+          birth.getDate(),
+        );
+
+        if (nextBirthday <= today) {
+          nextBirthday = new Date(
+            today.getFullYear() + 1,
+            birth.getMonth(),
+            birth.getDate(),
+          );
+        }
+
+        const daysUntilBirthday = Math.round(
+          (Date.UTC(
+            nextBirthday.getFullYear(),
+            nextBirthday.getMonth(),
+            nextBirthday.getDate(),
+          ) -
+            Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())) /
+            millisecondsPerDay,
+        );
+
+        document.getElementById("ageText").textContent =
+          years + " Years, " + months + " Months, " + days + " Days";
+
+        document.getElementById("birthAD").textContent =
+          "Birth date in AD: " + birth.toLocaleDateString("en-GB");
+
+        document.getElementById("totalDays").textContent =
+          "Total days lived: " + totalDays.toLocaleString();
+
+        document.getElementById("nextBirthday").textContent =
+          "Days until next birthday: " + daysUntilBirthday;
+
+        document.getElementById("error").style.display = "none";
+        document.getElementById("result").style.display = "block";
+      }
+
+      document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>
+```

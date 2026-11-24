@@ -1,0 +1,311 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Percentage Calculator - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Calculate percentages, percentage increases, decreases and changes for free."
+    />
+
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .calculator {
+        max-width: 650px;
+        margin: 60px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+      }
+
+      .calculator h1 {
+        text-align: center;
+        color: #155eef;
+      }
+
+      .calculator .intro {
+        text-align: center;
+        color: #64748b;
+        margin: 12px 0 25px;
+      }
+
+      .calculation-box {
+        padding: 20px;
+        margin: 18px 0;
+        background: #f5f8ff;
+        border: 1px solid #e5eaf5;
+        border-radius: 10px;
+      }
+
+      .calculation-box h3 {
+        color: #155eef;
+        margin-bottom: 15px;
+      }
+
+      .calculation-box label {
+        display: block;
+        font-weight: bold;
+        margin: 12px 0 6px;
+      }
+
+      .calculation-box input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        font-size: 16px;
+      }
+
+      .calculate-btn {
+        width: 100%;
+        padding: 13px;
+        margin-top: 15px;
+        background: #155eef;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .calculate-btn:hover {
+        background: #0847c7;
+      }
+
+      .result {
+        display: none;
+        margin-top: 15px;
+        padding: 14px;
+        background: #dbeafe;
+        color: #155eef;
+        border-radius: 7px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .error {
+        display: none;
+        color: #dc2626;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #155eef;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Calculators</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="calculator">
+        <h1>📊 Percentage Calculator</h1>
+        <p class="intro">Calculate percentages quickly and easily.</p>
+
+        <!-- CALCULATION 1 -->
+        <div class="calculation-box">
+          <h3>1. What is X% of Y?</h3>
+
+          <label for="percent1">Percentage (%)</label>
+          <input type="number" id="percent1" placeholder="Example: 20" />
+
+          <label for="number1">Number</label>
+          <input type="number" id="number1" placeholder="Example: 500" />
+
+          <button class="calculate-btn" onclick="calculateOne()">
+            Calculate
+          </button>
+
+          <div class="result" id="result1"></div>
+          <div class="error" id="error1"></div>
+        </div>
+
+        <!-- CALCULATION 2 -->
+        <div class="calculation-box">
+          <h3>2. X is what percentage of Y?</h3>
+
+          <label for="number2">First Number (X)</label>
+          <input type="number" id="number2" placeholder="Example: 50" />
+
+          <label for="number3">Second Number (Y)</label>
+          <input type="number" id="number3" placeholder="Example: 200" />
+
+          <button class="calculate-btn" onclick="calculateTwo()">
+            Calculate
+          </button>
+
+          <div class="result" id="result2"></div>
+          <div class="error" id="error2"></div>
+        </div>
+
+        <!-- CALCULATION 3 -->
+        <div class="calculation-box">
+          <h3>3. Percentage Increase</h3>
+
+          <label for="oldValue">Original Value</label>
+          <input type="number" id="oldValue" placeholder="Example: 100" />
+
+          <label for="newValue">New Value</label>
+          <input type="number" id="newValue" placeholder="Example: 150" />
+
+          <button class="calculate-btn" onclick="calculateIncrease()">
+            Calculate Increase
+          </button>
+
+          <div class="result" id="result3"></div>
+          <div class="error" id="error3"></div>
+        </div>
+
+        <!-- CALCULATION 4 -->
+        <div class="calculation-box">
+          <h3>4. Percentage Decrease</h3>
+
+          <label for="originalValue">Original Value</label>
+          <input type="number" id="originalValue" placeholder="Example: 200" />
+
+          <label for="reducedValue">Reduced Value</label>
+          <input type="number" id="reducedValue" placeholder="Example: 150" />
+
+          <button class="calculate-btn" onclick="calculateDecrease()">
+            Calculate Decrease
+          </button>
+
+          <div class="result" id="result4"></div>
+          <div class="error" id="error4"></div>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Home</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <h3>🇳🇵 Nepal Smart Tools</h3>
+        <p>Free online tools for everyone.</p>
+        <p>© <span id="currentYear"></span> Nepal Smart Tools</p>
+      </div>
+    </footer>
+
+    <script>
+      function getValues(ids) {
+        return ids.map((id) => {
+          const input = document.getElementById(id);
+          return input.value.trim() === "" ? NaN : Number(input.value);
+        });
+      }
+
+      function showResult(id, message) {
+        const result = document.getElementById("result" + id);
+        const error = document.getElementById("error" + id);
+
+        result.textContent = message;
+        result.style.display = "block";
+        error.style.display = "none";
+      }
+
+      function showError(id, message) {
+        const result = document.getElementById("result" + id);
+        const error = document.getElementById("error" + id);
+
+        error.textContent = message;
+        error.style.display = "block";
+        result.style.display = "none";
+      }
+
+      function calculateOne() {
+        const [percentage, number] = getValues(["percent1", "number1"]);
+
+        if (!Number.isFinite(percentage) || !Number.isFinite(number)) {
+          return showError(1, "Please enter both numbers.");
+        }
+
+        const answer = (percentage / 100) * number;
+        showResult(
+          1,
+          percentage +
+            "% of " +
+            number +
+            " = " +
+            answer.toLocaleString(undefined, { maximumFractionDigits: 8 }),
+        );
+      }
+
+      function calculateTwo() {
+        const [x, y] = getValues(["number2", "number3"]);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+          return showError(2, "Please enter both numbers.");
+        }
+
+        if (y === 0) {
+          return showError(2, "The second number cannot be zero.");
+        }
+
+        const answer = (x / y) * 100;
+        showResult(2, x + " is " + answer.toFixed(2) + "% of " + y);
+      }
+
+      function calculateIncrease() {
+        const [oldValue, newValue] = getValues(["oldValue", "newValue"]);
+
+        if (!Number.isFinite(oldValue) || !Number.isFinite(newValue)) {
+          return showError(3, "Please enter both values.");
+        }
+
+        if (oldValue <= 0 || newValue < oldValue) {
+          return showError(
+            3,
+            "Enter a positive original value and a new value greater than or equal to it.",
+          );
+        }
+
+        const increase = ((newValue - oldValue) / oldValue) * 100;
+        showResult(3, "Percentage Increase: " + increase.toFixed(2) + "%");
+      }
+
+      function calculateDecrease() {
+        const [original, reduced] = getValues([
+          "originalValue",
+          "reducedValue",
+        ]);
+
+        if (!Number.isFinite(original) || !Number.isFinite(reduced)) {
+          return showError(4, "Please enter both values.");
+        }
+
+        if (original <= 0 || reduced < 0 || reduced > original) {
+          return showError(
+            4,
+            "Enter a positive original value and a reduced value between zero and the original value.",
+          );
+        }
+
+        const decrease = ((original - reduced) / original) * 100;
+        showResult(4, "Percentage Decrease: " + decrease.toFixed(2) + "%");
+      }
+
+      document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>
+```

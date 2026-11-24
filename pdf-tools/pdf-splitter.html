@@ -1,0 +1,261 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Split PDF files online and extract selected pages for free."
+    />
+    <title>PDF Splitter - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .pdf-tool {
+        max-width: 650px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .pdf-tool input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .pdf-tool button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      #status {
+        margin-top: 20px;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">PDF Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>✂️ PDF Splitter</h1>
+        <p>Extract selected pages from your PDF document.</p>
+      </section>
+
+      <section class="pdf-tool">
+        <h2>Split Your PDF</h2>
+
+        <label for="pdfFile">Choose PDF File:</label>
+        <input type="file" id="pdfFile" accept=".pdf,application/pdf" />
+
+        <p id="pageInfo">No PDF selected.</p>
+
+        <label for="pageNumbers">Pages to extract:</label>
+        <input type="text" id="pageNumbers" placeholder="Example: 1, 3, 5-8" />
+
+        <p>Enter individual page numbers or ranges separated by commas.</p>
+
+        <button id="splitButton">Split PDF</button>
+
+        <div id="status"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <script>
+      const pdfFile = document.getElementById("pdfFile");
+      const pageInfo = document.getElementById("pageInfo");
+      const pageNumbers = document.getElementById("pageNumbers");
+      const splitButton = document.getElementById("splitButton");
+      const status = document.getElementById("status");
+
+      let selectedFile = null;
+      let totalPages = 0;
+      let downloadUrl = null;
+
+      pdfFile.addEventListener("change", async () => {
+        selectedFile = pdfFile.files[0];
+        totalPages = 0;
+        pageNumbers.value = "";
+        status.innerHTML = "";
+
+        if (downloadUrl) {
+          URL.revokeObjectURL(downloadUrl);
+          downloadUrl = null;
+        }
+
+        if (!selectedFile) {
+          pageInfo.textContent = "No PDF selected.";
+          return;
+        }
+
+        if (
+          selectedFile.type !== "application/pdf" &&
+          !selectedFile.name.toLowerCase().endsWith(".pdf")
+        ) {
+          alert("Please select a valid PDF file.");
+          pdfFile.value = "";
+          selectedFile = null;
+          pageInfo.textContent = "No PDF selected.";
+          return;
+        }
+
+        if (!window.PDFLib) {
+          pageInfo.textContent =
+            "PDF library could not load. Check your internet connection.";
+          return;
+        }
+
+        try {
+          const bytes = await selectedFile.arrayBuffer();
+          const pdf = await PDFLib.PDFDocument.load(bytes);
+
+          totalPages = pdf.getPageCount();
+          pageInfo.textContent = "Total pages: " + totalPages;
+        } catch (error) {
+          console.error(error);
+          pageInfo.textContent =
+            "Could not read this PDF. It may be damaged or encrypted.";
+        }
+      });
+
+      function getSelectedPages(input, total) {
+        const pages = new Set();
+        const parts = input.split(",");
+
+        for (const part of parts) {
+          const value = part.trim();
+
+          if (!value) continue;
+
+          const range = value.match(/^(\d+)\s*-\s*(\d+)$/);
+
+          if (range) {
+            const start = Number(range[1]);
+            const end = Number(range[2]);
+
+            if (start < 1 || end > total || start > end) {
+              throw new Error("Invalid page range: " + value);
+            }
+
+            for (let i = start; i <= end; i++) {
+              pages.add(i);
+            }
+          } else if (/^\d+$/.test(value)) {
+            const page = Number(value);
+
+            if (page < 1 || page > total) {
+              throw new Error("Page " + page + " does not exist.");
+            }
+
+            pages.add(page);
+          } else {
+            throw new Error("Invalid page entry: " + value);
+          }
+        }
+
+        return [...pages].sort((a, b) => a - b);
+      }
+
+      splitButton.addEventListener("click", async () => {
+        if (!selectedFile || totalPages === 0) {
+          alert("Please select a valid PDF file first.");
+          return;
+        }
+
+        if (!pageNumbers.value.trim()) {
+          alert("Enter the page numbers you want to extract.");
+          return;
+        }
+
+        if (!window.PDFLib) {
+          status.textContent = "PDF library is not available.";
+          return;
+        }
+
+        splitButton.disabled = true;
+        status.textContent = "Extracting pages. Please wait...";
+
+        try {
+          const pagesToExtract = getSelectedPages(
+            pageNumbers.value,
+            totalPages,
+          );
+
+          if (pagesToExtract.length === 0) {
+            throw new Error("Please enter at least one page number.");
+          }
+
+          const bytes = await selectedFile.arrayBuffer();
+
+          const originalPdf = await PDFLib.PDFDocument.load(bytes);
+          const newPdf = await PDFLib.PDFDocument.create();
+
+          const copiedPages = await newPdf.copyPages(
+            originalPdf,
+            pagesToExtract.map((page) => page - 1),
+          );
+
+          copiedPages.forEach((page) => newPdf.addPage(page));
+
+          const outputBytes = await newPdf.save();
+
+          const blob = new Blob([outputBytes], { type: "application/pdf" });
+
+          if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+          downloadUrl = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.download = "nepal-smart-tools-split.pdf";
+          link.className = "download-link";
+          link.textContent = "Download Extracted PDF";
+
+          status.innerHTML = `
+                <h3>PDF Split Successfully!</h3>
+                <p>Pages extracted: ${pagesToExtract.join(", ")}</p>
+                <p>Total extracted pages: ${pagesToExtract.length}</p>
+            `;
+
+          status.appendChild(link);
+        } catch (error) {
+          console.error(error);
+          status.textContent = error.message || "Could not split this PDF.";
+        } finally {
+          splitButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
+```

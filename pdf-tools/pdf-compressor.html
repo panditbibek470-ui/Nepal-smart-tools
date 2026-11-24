@@ -1,0 +1,245 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Optimize PDF files online for free using Nepal Smart Tools."
+    />
+    <title>PDF Compressor - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .pdf-tool {
+        max-width: 650px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .pdf-tool input,
+      .pdf-tool select {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .pdf-tool button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      #status {
+        margin-top: 20px;
+        line-height: 1.8;
+      }
+
+      .note {
+        background: #f1f5ff;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">PDF Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>🗜️ PDF Compressor</h1>
+        <p>Optimize your PDF files and download the result.</p>
+      </section>
+
+      <section class="pdf-tool">
+        <h2>Optimize Your PDF</h2>
+
+        <label for="pdfFile">Choose PDF File:</label>
+        <input type="file" id="pdfFile" accept=".pdf,application/pdf" />
+
+        <p id="fileInfo">No PDF selected.</p>
+
+        <label for="quality">Optimization Level:</label>
+        <select id="quality">
+          <option value="low">Basic optimization</option>
+          <option value="medium" selected>Balanced optimization</option>
+          <option value="high">Maximum cleanup</option>
+        </select>
+
+        <button id="compressButton">Optimize PDF</button>
+
+        <div id="status"></div>
+
+        <p class="note">
+          Note: This tool cleans and re-saves PDF documents. It cannot guarantee
+          a smaller file size, especially for image-heavy PDFs. It does not
+          currently recompress embedded images.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <script>
+      const pdfFile = document.getElementById("pdfFile");
+      const fileInfo = document.getElementById("fileInfo");
+      const quality = document.getElementById("quality");
+      const compressButton = document.getElementById("compressButton");
+      const status = document.getElementById("status");
+
+      let selectedFile = null;
+      let downloadUrl = null;
+
+      function formatSize(bytes) {
+        return (bytes / 1024).toFixed(2) + " KB";
+      }
+
+      pdfFile.addEventListener("change", () => {
+        selectedFile = pdfFile.files[0];
+
+        status.innerHTML = "";
+
+        if (downloadUrl) {
+          URL.revokeObjectURL(downloadUrl);
+          downloadUrl = null;
+        }
+
+        if (!selectedFile) {
+          fileInfo.textContent = "No PDF selected.";
+          return;
+        }
+
+        if (
+          selectedFile.type !== "application/pdf" &&
+          !selectedFile.name.toLowerCase().endsWith(".pdf")
+        ) {
+          alert("Please select a PDF file.");
+          pdfFile.value = "";
+          selectedFile = null;
+          fileInfo.textContent = "No PDF selected.";
+          return;
+        }
+
+        fileInfo.textContent =
+          "File: " +
+          selectedFile.name +
+          " | Size: " +
+          formatSize(selectedFile.size);
+      });
+
+      compressButton.addEventListener("click", async () => {
+        if (!selectedFile) {
+          alert("Please select a PDF file first.");
+          return;
+        }
+
+        if (!window.PDFLib) {
+          status.textContent =
+            "PDF library could not load. Check your internet connection and reload.";
+          return;
+        }
+
+        compressButton.disabled = true;
+        status.textContent = "Optimizing PDF. Please wait...";
+
+        try {
+          const bytes = await selectedFile.arrayBuffer();
+
+          const pdf = await PDFLib.PDFDocument.load(bytes, {
+            updateMetadata: false,
+          });
+
+          const level = quality.value;
+
+          let outputBytes;
+
+          if (level === "low") {
+            outputBytes = await pdf.save({
+              useObjectStreams: false,
+              addDefaultPage: false,
+            });
+          } else if (level === "medium") {
+            outputBytes = await pdf.save({
+              useObjectStreams: true,
+              addDefaultPage: false,
+            });
+          } else {
+            outputBytes = await pdf.save({
+              useObjectStreams: true,
+              addDefaultPage: false,
+              objectsPerTick: 50,
+            });
+          }
+
+          const blob = new Blob([outputBytes], { type: "application/pdf" });
+
+          if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+          downloadUrl = URL.createObjectURL(blob);
+
+          const originalSize = selectedFile.size;
+          const newSize = blob.size;
+          const difference = originalSize - newSize;
+          const percentage = (difference / originalSize) * 100;
+
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.download = "nepal-smart-tools-optimized.pdf";
+          link.className = "download-link";
+          link.textContent = "Download Optimized PDF";
+
+          status.innerHTML = `
+                <h3>PDF Optimization Complete!</h3>
+                <p>Original size: ${formatSize(originalSize)}</p>
+                <p>New size: ${formatSize(newSize)}</p>
+                <p>
+                    ${
+                      difference >= 0
+                        ? "Size reduced by " + percentage.toFixed(2) + "%"
+                        : "Output is " +
+                          Math.abs(percentage).toFixed(2) +
+                          "% larger"
+                    }
+                </p>
+            `;
+
+          status.appendChild(link);
+        } catch (error) {
+          console.error(error);
+          status.textContent =
+            "Could not optimize this PDF. It may be damaged, encrypted or unsupported.";
+        } finally {
+          compressButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
+```

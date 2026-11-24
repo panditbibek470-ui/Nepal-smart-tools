@@ -1,0 +1,178 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case Converter - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Convert text to uppercase, lowercase, title case and sentence case for free."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .converter {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .converter h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .converter textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .converter-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .converter button {
+        padding: 12px;
+        border: none;
+        border-radius: 7px;
+        background: #1769aa;
+        color: white;
+        cursor: pointer;
+      }
+
+      .converter button:hover {
+        background: #0d4f85;
+      }
+
+      .converter .secondary {
+        background: #555;
+      }
+
+      .converter .copy {
+        background: #16834a;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Text Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="converter">
+      <h1>Case Converter</h1>
+      <p>Convert your text into different letter cases instantly.</p>
+
+      <textarea
+        id="inputText"
+        placeholder="Enter or paste your text here..."
+      ></textarea>
+
+      <div class="converter-buttons">
+        <button onclick="convertCase('upper')">UPPERCASE</button>
+        <button onclick="convertCase('lower')">lowercase</button>
+        <button onclick="convertCase('title')">Title Case</button>
+        <button onclick="convertCase('sentence')">Sentence case</button>
+        <button onclick="convertCase('alternate')">aLtErNaTe CaSe</button>
+        <button onclick="convertCase('reverse')">Reverse Text</button>
+        <button class="copy" onclick="copyText()">Copy Text</button>
+        <button class="secondary" onclick="clearText()">Clear</button>
+      </div>
+    </main>
+
+    <script>
+      const inputText = document.getElementById("inputText");
+
+      function convertCase(type) {
+        let text = inputText.value;
+
+        if (!text) {
+          alert("Please enter some text first.");
+          return;
+        }
+
+        switch (type) {
+          case "upper":
+            text = text.toUpperCase();
+            break;
+
+          case "lower":
+            text = text.toLowerCase();
+            break;
+
+          case "title":
+            text = text
+              .toLowerCase()
+              .replace(/\b\w/g, (char) => char.toUpperCase());
+            break;
+
+          case "sentence":
+            text = text
+              .toLowerCase()
+              .replace(/(^\s*\w|[.!?]\s+\w)/g, (char) => char.toUpperCase());
+            break;
+
+          case "alternate":
+            let index = 0;
+            text = [...text]
+              .map((char) => {
+                if (/[a-z]/i.test(char)) {
+                  const result =
+                    index % 2 === 0 ? char.toLowerCase() : char.toUpperCase();
+                  index++;
+                  return result;
+                }
+                return char;
+              })
+              .join("");
+            break;
+
+          case "reverse":
+            text = [...text].reverse().join("");
+            break;
+        }
+
+        inputText.value = text;
+      }
+
+      async function copyText() {
+        if (!inputText.value) {
+          alert("There is no text to copy.");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(inputText.value);
+          alert("Text copied successfully!");
+        } catch {
+          inputText.select();
+          document.execCommand("copy");
+          alert("Text copied!");
+        }
+      }
+
+      function clearText() {
+        inputText.value = "";
+      }
+    </script>
+  </body>
+</html>
+```

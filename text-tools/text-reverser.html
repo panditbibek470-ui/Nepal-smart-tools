@@ -1,0 +1,173 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text Reverser - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Reverse text, words and sentences online for free."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .reverser {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .reverser h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .reverser textarea {
+        width: 100%;
+        min-height: 180px;
+        padding: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .reverser-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .reverser button {
+        padding: 12px;
+        border: none;
+        border-radius: 7px;
+        background: #1769aa;
+        color: white;
+        cursor: pointer;
+      }
+
+      .reverser .copy {
+        background: #16834a;
+      }
+
+      .reverser .clear {
+        background: #555;
+      }
+
+      .reverser h3 {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Text Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="reverser">
+      <h1>Text Reverser</h1>
+      <p>Reverse your text, words or sentence order instantly.</p>
+
+      <h3>Enter Your Text</h3>
+      <textarea
+        id="inputText"
+        placeholder="Type or paste your text here..."
+      ></textarea>
+
+      <div class="reverser-buttons">
+        <button onclick="reverseText()">Reverse Characters</button>
+        <button onclick="reverseWords()">Reverse Word Order</button>
+        <button onclick="reverseLines()">Reverse Line Order</button>
+        <button onclick="copyResult()" class="copy">Copy Result</button>
+        <button onclick="clearText()" class="clear">Clear</button>
+      </div>
+
+      <h3>Result</h3>
+      <textarea
+        id="outputText"
+        placeholder="Your reversed text will appear here..."
+        readonly
+      ></textarea>
+    </main>
+
+    <script>
+      function getInput() {
+        const text = document.getElementById("inputText").value;
+
+        if (!text) {
+          alert("Please enter some text first.");
+          return null;
+        }
+
+        return text;
+      }
+
+      function reverseText() {
+        const text = getInput();
+        if (text === null) return;
+
+        document.getElementById("outputText").value = [...text]
+          .reverse()
+          .join("");
+      }
+
+      function reverseWords() {
+        const text = getInput();
+        if (text === null) return;
+
+        document.getElementById("outputText").value = text
+          .trim()
+          .split(/\s+/)
+          .reverse()
+          .join(" ");
+      }
+
+      function reverseLines() {
+        const text = getInput();
+        if (text === null) return;
+
+        document.getElementById("outputText").value = text
+          .split(/\r?\n/)
+          .reverse()
+          .join("\n");
+      }
+
+      async function copyResult() {
+        const output = document.getElementById("outputText");
+
+        if (!output.value) {
+          alert("Please generate a result first.");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(output.value);
+          alert("Result copied successfully!");
+        } catch {
+          output.select();
+          document.execCommand("copy");
+          alert("Result copied!");
+        }
+      }
+
+      function clearText() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+      }
+    </script>
+  </body>
+</html>
+```

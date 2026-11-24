@@ -1,0 +1,161 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Character Counter - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Count characters, letters, numbers, spaces and words online for free."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .character-tool {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .character-tool h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .character-tool textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .stat {
+        background: #eaf4ff;
+        padding: 18px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat h3 {
+        color: #1769aa;
+        font-size: 15px;
+      }
+
+      .stat p {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 8px 0 0;
+      }
+
+      .character-tool button {
+        padding: 12px 20px;
+        margin-top: 15px;
+        background: #1769aa;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Text Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="character-tool">
+      <h1>Character Counter</h1>
+      <p>Type or paste text to count its characters and other details.</p>
+
+      <textarea
+        id="inputText"
+        placeholder="Start typing or paste your text here..."
+      ></textarea>
+
+      <div class="stats">
+        <div class="stat">
+          <h3>Total Characters</h3>
+          <p id="total">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Without Spaces</h3>
+          <p id="withoutSpaces">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Letters</h3>
+          <p id="letters">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Numbers</h3>
+          <p id="numbers">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Spaces</h3>
+          <p id="spaces">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Words</h3>
+          <p id="words">0</p>
+        </div>
+      </div>
+
+      <button onclick="clearText()">Clear Text</button>
+    </main>
+
+    <script>
+      const input = document.getElementById("inputText");
+
+      function updateCounter() {
+        const text = input.value;
+
+        const total = [...text].length;
+        const withoutSpaces = [...text.replace(/\s/g, "")].length;
+        const letters = (text.match(/\p{L}/gu) || []).length;
+        const numbers = (text.match(/\p{N}/gu) || []).length;
+        const spaces = (text.match(/ /g) || []).length;
+        const words = text.trim() ? text.trim().split(/\s+/u).length : 0;
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("withoutSpaces").textContent = withoutSpaces;
+        document.getElementById("letters").textContent = letters;
+        document.getElementById("numbers").textContent = numbers;
+        document.getElementById("spaces").textContent = spaces;
+        document.getElementById("words").textContent = words;
+      }
+
+      function clearText() {
+        input.value = "";
+        updateCounter();
+      }
+
+      input.addEventListener("input", updateCounter);
+    </script>
+  </body>
+</html>
+```

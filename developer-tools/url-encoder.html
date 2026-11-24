@@ -1,0 +1,185 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>URL Encoder and Decoder - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Encode and decode URLs online for free."
+    />
+
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .tool-box {
+        max-width: 850px;
+        margin: 30px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 180px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-family: monospace;
+        font-size: 15px;
+        resize: vertical;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .actions button {
+        padding: 11px 18px;
+        border: none;
+        border-radius: 6px;
+        background: #0759c7;
+        color: white;
+        cursor: pointer;
+      }
+
+      .actions button:hover {
+        background: #06449a;
+      }
+
+      #status {
+        margin-top: 12px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Developer Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="tool-box">
+        <h1>URL Encoder and Decoder</h1>
+
+        <p>Encode special characters in URLs or decode encoded URLs.</p>
+
+        <h3>Enter Your Text or URL</h3>
+
+        <textarea
+          id="inputText"
+          placeholder="Example: https://example.com/search?q=hello world"
+        ></textarea>
+
+        <div class="actions">
+          <button onclick="encodeURL()">Encode URL</button>
+          <button onclick="decodeURL()">Decode URL</button>
+          <button onclick="copyResult()">Copy Result</button>
+          <button onclick="clearText()">Clear</button>
+        </div>
+
+        <h3>Result</h3>
+
+        <textarea
+          id="outputText"
+          placeholder="Your result will appear here..."
+          readonly
+        ></textarea>
+
+        <p id="status"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      function encodeURL() {
+        var input = document.getElementById("inputText").value;
+        var output = document.getElementById("outputText");
+        var status = document.getElementById("status");
+
+        if (input === "") {
+          status.innerHTML = "Please enter some text or URL.";
+          status.style.color = "red";
+          return;
+        }
+
+        try {
+          output.value = encodeURIComponent(input);
+
+          status.innerHTML = "URL encoded successfully!";
+          status.style.color = "green";
+        } catch (error) {
+          status.innerHTML = "Unable to encode the text.";
+          status.style.color = "red";
+        }
+      }
+
+      function decodeURL() {
+        var input = document.getElementById("inputText").value;
+        var output = document.getElementById("outputText");
+        var status = document.getElementById("status");
+
+        if (input === "") {
+          status.innerHTML = "Please enter encoded text.";
+          status.style.color = "red";
+          return;
+        }
+
+        try {
+          output.value = decodeURIComponent(input);
+
+          status.innerHTML = "URL decoded successfully!";
+          status.style.color = "green";
+        } catch (error) {
+          status.innerHTML = "Invalid encoded URL.";
+          status.style.color = "red";
+        }
+      }
+
+      function copyResult() {
+        var output = document.getElementById("outputText");
+        var status = document.getElementById("status");
+
+        if (output.value === "") {
+          status.innerHTML = "Nothing to copy.";
+          status.style.color = "red";
+          return;
+        }
+
+        output.select();
+        document.execCommand("copy");
+
+        status.innerHTML = "Result copied!";
+        status.style.color = "green";
+      }
+
+      function clearText() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+        document.getElementById("status").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
+```

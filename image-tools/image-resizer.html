@@ -1,0 +1,289 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Resize images online for free. Change image width and height easily."
+    />
+    <title>Image Resizer - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .resizer {
+        max-width: 650px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .resizer input,
+      .resizer select {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 18px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .dimensions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .resizer button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      .preview {
+        max-width: 100%;
+        max-height: 300px;
+        display: none;
+        margin: 15px auto;
+      }
+
+      #result {
+        margin-top: 20px;
+        line-height: 1.8;
+      }
+
+      @media (max-width: 500px) {
+        .dimensions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Image Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>📐 Image Resizer</h1>
+        <p>Change image dimensions online for free.</p>
+      </section>
+
+      <section class="resizer">
+        <h2>Resize Your Image</h2>
+
+        <label for="imageInput">Choose Image:</label>
+        <input type="file" id="imageInput" accept="image/*" />
+
+        <img id="preview" class="preview" alt="Image preview" />
+
+        <div class="dimensions">
+          <div>
+            <label for="width">Width (pixels)</label>
+            <input
+              type="number"
+              id="width"
+              min="1"
+              max="10000"
+              placeholder="Width"
+            />
+          </div>
+
+          <div>
+            <label for="height">Height (pixels)</label>
+            <input
+              type="number"
+              id="height"
+              min="1"
+              max="10000"
+              placeholder="Height"
+            />
+          </div>
+        </div>
+
+        <label>
+          <input type="checkbox" id="keepRatio" checked style="width: auto" />
+          Keep aspect ratio
+        </label>
+
+        <label for="format">Output Format:</label>
+        <select id="format">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+
+        <button id="resizeButton">Resize Image</button>
+
+        <div id="result"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      const imageInput = document.getElementById("imageInput");
+      const preview = document.getElementById("preview");
+      const widthInput = document.getElementById("width");
+      const heightInput = document.getElementById("height");
+      const keepRatio = document.getElementById("keepRatio");
+      const format = document.getElementById("format");
+      const resizeButton = document.getElementById("resizeButton");
+      const result = document.getElementById("result");
+
+      let originalImage = new Image();
+      let selectedFile = null;
+      let aspectRatio = 1;
+      let downloadUrl = null;
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
+          alert("Please select a supported image file.");
+          imageInput.value = "";
+          return;
+        }
+
+        selectedFile = file;
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          originalImage.onload = () => {
+            aspectRatio =
+              originalImage.naturalWidth / originalImage.naturalHeight;
+
+            widthInput.value = originalImage.naturalWidth;
+            heightInput.value = originalImage.naturalHeight;
+
+            preview.src = event.target.result;
+            preview.style.display = "block";
+            result.innerHTML = "";
+          };
+
+          originalImage.onerror = () => {
+            alert("Could not load this image.");
+          };
+
+          originalImage.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+      });
+
+      widthInput.addEventListener("input", () => {
+        if (keepRatio.checked && widthInput.value && aspectRatio) {
+          heightInput.value = Math.round(
+            Number(widthInput.value) / aspectRatio,
+          );
+        }
+      });
+
+      heightInput.addEventListener("input", () => {
+        if (keepRatio.checked && heightInput.value && aspectRatio) {
+          widthInput.value = Math.round(
+            Number(heightInput.value) * aspectRatio,
+          );
+        }
+      });
+
+      resizeButton.addEventListener("click", () => {
+        if (!selectedFile || !originalImage.naturalWidth) {
+          alert("Please choose an image first.");
+          return;
+        }
+
+        const width = Number(widthInput.value);
+        const height = Number(heightInput.value);
+
+        if (
+          !Number.isInteger(width) ||
+          !Number.isInteger(height) ||
+          width < 1 ||
+          height < 1 ||
+          width > 10000 ||
+          height > 10000
+        ) {
+          alert("Enter valid dimensions between 1 and 10,000 pixels.");
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        const selectedFormat = format.value;
+
+        if (selectedFormat === "image/jpeg") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        ctx.drawImage(originalImage, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              result.textContent =
+                "Resizing failed. Please try another format.";
+              return;
+            }
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            const extension =
+              selectedFormat === "image/jpeg"
+                ? "jpg"
+                : selectedFormat === "image/png"
+                  ? "png"
+                  : "webp";
+
+            const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
+
+            result.innerHTML = `
+                <h3>Image Resized Successfully!</h3>
+                <p>New Width: ${width} pixels</p>
+                <p>New Height: ${height} pixels</p>
+                <a class="download-link"
+                   href="${downloadUrl}"
+                   download="${fileName}-resized.${extension}">
+                   Download Resized Image
+                </a>
+            `;
+          },
+          selectedFormat,
+          0.9,
+        );
+      });
+    </script>
+  </body>
+</html>
+```

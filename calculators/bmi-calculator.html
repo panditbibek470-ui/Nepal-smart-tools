@@ -1,0 +1,264 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>BMI Calculator - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Calculate your Body Mass Index (BMI) for free."
+    />
+
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .bmi-container {
+        max-width: 650px;
+        margin: 60px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+      }
+
+      .bmi-container h1 {
+        text-align: center;
+        color: #155eef;
+        margin-bottom: 12px;
+      }
+
+      .bmi-container p {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 20px;
+      }
+
+      .bmi-container label {
+        display: block;
+        font-weight: bold;
+        margin: 18px 0 8px;
+      }
+
+      .bmi-container input,
+      .bmi-container select {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .calculate-btn {
+        width: 100%;
+        padding: 15px;
+        margin-top: 25px;
+        background: #155eef;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      #result {
+        display: none;
+        margin-top: 25px;
+        padding: 22px;
+        background: #eff6ff;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .bmi-number {
+        font-size: 35px;
+        font-weight: bold;
+        color: #155eef;
+      }
+
+      #category {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      #error {
+        display: none;
+        color: #dc2626;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 25px;
+        color: #155eef;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Calculators</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="bmi-container">
+        <h1>⚖️ BMI Calculator</h1>
+        <p>Calculate your Body Mass Index.</p>
+
+        <label for="heightUnit">Height Unit</label>
+        <select id="heightUnit" onchange="changeHeightUnit()">
+          <option value="cm">Centimeters (cm)</option>
+          <option value="ft">Feet and Inches</option>
+        </select>
+
+        <div id="cmInput">
+          <label for="heightCm">Height (cm)</label>
+          <input type="number" id="heightCm" placeholder="Example: 165" />
+        </div>
+
+        <div id="ftInput" style="display: none">
+          <label for="feet">Feet</label>
+          <input type="number" id="feet" placeholder="Example: 5" />
+
+          <label for="inches">Inches</label>
+          <input type="number" id="inches" placeholder="Example: 5" />
+        </div>
+
+        <label for="weight">Weight (kg)</label>
+        <input type="number" id="weight" placeholder="Example: 65" />
+
+        <button class="calculate-btn" onclick="calculateBMI()">
+          Calculate BMI
+        </button>
+
+        <div id="error"></div>
+
+        <div id="result" aria-live="polite">
+          <h2>Your BMI</h2>
+          <div class="bmi-number" id="bmiValue"></div>
+          <div id="category"></div>
+          <p id="guidance"></p>
+          <p id="healthyRange"></p>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Home</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <h3>🇳🇵 Nepal Smart Tools</h3>
+        <p>Free online tools for everyone.</p>
+        <p>© <span id="currentYear"></span> Nepal Smart Tools</p>
+      </div>
+    </footer>
+
+    <script>
+      function changeHeightUnit() {
+        const unit = document.getElementById("heightUnit").value;
+
+        document.getElementById("cmInput").style.display =
+          unit === "cm" ? "block" : "none";
+
+        document.getElementById("ftInput").style.display =
+          unit === "ft" ? "block" : "none";
+
+        document.getElementById("result").style.display = "none";
+        document.getElementById("error").style.display = "none";
+      }
+
+      function calculateBMI() {
+        const unit = document.getElementById("heightUnit").value;
+        const weight = Number(document.getElementById("weight").value);
+
+        let height;
+
+        if (unit === "cm") {
+          height = Number(document.getElementById("heightCm").value) / 100;
+        } else {
+          const feet = Number(document.getElementById("feet").value);
+          const inches = Number(document.getElementById("inches").value);
+
+          if (feet < 0 || inches < 0 || inches >= 12) {
+            showError("Please enter valid feet and inches.");
+            return;
+          }
+
+          height = (feet * 12 + inches) * 0.0254;
+        }
+
+        if (
+          !Number.isFinite(weight) ||
+          weight <= 0 ||
+          !Number.isFinite(height) ||
+          height <= 0
+        ) {
+          showError("Please enter valid height and weight.");
+          return;
+        }
+
+        if (height > 3 || height < 0.5 || weight > 500) {
+          showError("Please check your height and weight values.");
+          return;
+        }
+
+        const bmi = weight / (height * height);
+
+        let category;
+        let guidance;
+
+        if (bmi < 18.5) {
+          category = "Underweight";
+          guidance = "Your BMI is below the standard adult healthy range.";
+        } else if (bmi < 25) {
+          category = "Normal Weight";
+          guidance = "Your BMI is within the standard adult healthy range.";
+        } else if (bmi < 30) {
+          category = "Overweight";
+          guidance = "Your BMI is above the standard adult healthy range.";
+        } else {
+          category = "Obesity";
+          guidance =
+            "Your BMI is in the obesity range. Consider discussing it with a healthcare professional.";
+        }
+
+        const minWeight = 18.5 * height * height;
+        const maxWeight = 24.9 * height * height;
+
+        document.getElementById("bmiValue").textContent = bmi.toFixed(1);
+        document.getElementById("category").textContent = category;
+        document.getElementById("guidance").textContent = guidance;
+
+        document.getElementById("healthyRange").textContent =
+          "Standard adult BMI 18.5–24.9 corresponds to approximately " +
+          minWeight.toFixed(1) +
+          "–" +
+          maxWeight.toFixed(1) +
+          " kg at your height.";
+
+        document.getElementById("error").style.display = "none";
+        document.getElementById("result").style.display = "block";
+      }
+
+      function showError(message) {
+        document.getElementById("error").textContent = message;
+        document.getElementById("error").style.display = "block";
+        document.getElementById("result").style.display = "none";
+      }
+
+      document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>
+```

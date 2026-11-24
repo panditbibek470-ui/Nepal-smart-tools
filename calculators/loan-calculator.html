@@ -1,0 +1,305 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Loan EMI Calculator - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Calculate monthly loan EMI, interest and total repayment with our free loan calculator."
+    />
+
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .loan-container {
+        max-width: 700px;
+        margin: 60px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+      }
+
+      .loan-container h1 {
+        color: #155eef;
+        text-align: center;
+      }
+
+      .intro {
+        text-align: center;
+        color: #64748b;
+        margin: 12px 0 25px;
+      }
+
+      .loan-container label {
+        display: block;
+        font-weight: bold;
+        margin: 18px 0 8px;
+      }
+
+      .loan-container input,
+      .loan-container select {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .calculate-btn {
+        width: 100%;
+        padding: 15px;
+        margin-top: 25px;
+        background: #155eef;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .calculate-btn:hover {
+        background: #0847c7;
+      }
+
+      #result {
+        display: none;
+        margin-top: 25px;
+        padding: 22px;
+        background: #eff6ff;
+        border-radius: 10px;
+      }
+
+      #result h2 {
+        text-align: center;
+        color: #155eef;
+      }
+
+      .emi {
+        font-size: 32px;
+        font-weight: bold;
+        color: #155eef;
+        text-align: center;
+        margin: 15px 0;
+      }
+
+      .result-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid #dbeafe;
+      }
+
+      #error {
+        display: none;
+        color: #dc2626;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 25px;
+        color: #155eef;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Calculators</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="loan-container">
+        <h1>🏦 Loan EMI Calculator</h1>
+        <p class="intro">Calculate your monthly loan payment and interest.</p>
+
+        <label for="currency">Currency</label>
+        <select id="currency">
+          <option value="NPR">Nepalese Rupee (NPR)</option>
+          <option value="USD">US Dollar (USD)</option>
+          <option value="INR">Indian Rupee (INR)</option>
+        </select>
+
+        <label for="loanAmount">Loan Amount</label>
+        <input
+          type="number"
+          id="loanAmount"
+          placeholder="Example: 1000000"
+          min="0"
+        />
+
+        <label for="interestRate">Annual Interest Rate (%)</label>
+        <input
+          type="number"
+          id="interestRate"
+          placeholder="Example: 10"
+          min="0"
+          step="any"
+        />
+
+        <label for="loanYears">Loan Duration (Years)</label>
+        <input
+          type="number"
+          id="loanYears"
+          placeholder="Example: 5"
+          min="0"
+          step="any"
+        />
+
+        <button class="calculate-btn" onclick="calculateLoan()">
+          Calculate EMI
+        </button>
+
+        <div id="error" role="alert"></div>
+
+        <div id="result" aria-live="polite">
+          <h2>Loan Summary</h2>
+
+          <div class="emi" id="monthlyEMI"></div>
+
+          <div class="result-row">
+            <strong>Loan Amount</strong>
+            <span id="principal"></span>
+          </div>
+
+          <div class="result-row">
+            <strong>Total Interest</strong>
+            <span id="totalInterest"></span>
+          </div>
+
+          <div class="result-row">
+            <strong>Total Repayment</strong>
+            <span id="totalPayment"></span>
+          </div>
+
+          <div class="result-row">
+            <strong>Number of Payments</strong>
+            <span id="payments"></span>
+          </div>
+
+          <p style="font-size: 13px; color: #64748b; margin-top: 15px">
+            Estimate only. Actual bank EMI may differ due to fees, payment dates
+            and loan terms.
+          </p>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Home</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <h3>🇳🇵 Nepal Smart Tools</h3>
+        <p>Free online tools for everyone.</p>
+        <p>© <span id="currentYear"></span> Nepal Smart Tools</p>
+      </div>
+    </footer>
+
+    <script>
+      function calculateLoan() {
+        const amountInput = document.getElementById("loanAmount").value.trim();
+        const rateInput = document.getElementById("interestRate").value.trim();
+        const yearsInput = document.getElementById("loanYears").value.trim();
+
+        const amount = Number(amountInput);
+        const annualRate = Number(rateInput);
+        const years = Number(yearsInput);
+
+        const currency = document.getElementById("currency").value;
+
+        if (
+          amountInput === "" ||
+          rateInput === "" ||
+          yearsInput === "" ||
+          !Number.isFinite(amount) ||
+          !Number.isFinite(annualRate) ||
+          !Number.isFinite(years) ||
+          amount <= 0 ||
+          annualRate < 0 ||
+          years <= 0
+        ) {
+          showError(
+            "Please enter a valid loan amount, interest rate and duration.",
+          );
+          return;
+        }
+
+        if (amount > 1e15 || annualRate > 100 || years > 100) {
+          showError(
+            "Please enter realistic values within the supported limits.",
+          );
+          return;
+        }
+
+        const months = Math.round(years * 12);
+
+        if (months < 1) {
+          showError("Loan duration must be at least one month.");
+          return;
+        }
+
+        const monthlyRate = annualRate / 12 / 100;
+
+        let emi;
+
+        if (monthlyRate === 0) {
+          emi = amount / months;
+        } else {
+          const factor = Math.pow(1 + monthlyRate, months);
+
+          emi = (amount * monthlyRate * factor) / (factor - 1);
+        }
+
+        const totalPayment = emi * months;
+        const interest = totalPayment - amount;
+
+        const formatter = new Intl.NumberFormat("en", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+        function money(value) {
+          return currency + " " + formatter.format(value);
+        }
+
+        document.getElementById("monthlyEMI").textContent =
+          money(emi) + " / month";
+
+        document.getElementById("principal").textContent = money(amount);
+
+        document.getElementById("totalInterest").textContent = money(interest);
+
+        document.getElementById("totalPayment").textContent =
+          money(totalPayment);
+
+        document.getElementById("payments").textContent = months + " months";
+
+        document.getElementById("error").style.display = "none";
+        document.getElementById("result").style.display = "block";
+      }
+
+      function showError(message) {
+        document.getElementById("error").textContent = message;
+        document.getElementById("error").style.display = "block";
+        document.getElementById("result").style.display = "none";
+      }
+
+      document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>
+```

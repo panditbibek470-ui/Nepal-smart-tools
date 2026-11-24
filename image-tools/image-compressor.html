@@ -1,0 +1,241 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Compress images online for free. Reduce image file size using Nepal Smart Tools."
+    />
+    <title>Image Compressor - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .compressor {
+        max-width: 650px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .compressor input,
+      .compressor select {
+        width: 100%;
+        margin: 10px 0 20px;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .compressor button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      .preview {
+        max-width: 100%;
+        max-height: 300px;
+        margin-top: 15px;
+        display: none;
+      }
+
+      #result {
+        margin-top: 20px;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Image Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>🗜️ Image Compressor</h1>
+        <p>Reduce your image file size online for free.</p>
+      </section>
+
+      <section class="compressor">
+        <h2>Compress Your Image</h2>
+
+        <label for="imageInput">Choose an image:</label>
+        <input type="file" id="imageInput" accept="image/*" />
+
+        <img id="preview" class="preview" alt="Image preview" />
+
+        <label for="quality"
+          >Compression Quality: <span id="qualityValue">70%</span></label
+        >
+        <input type="range" id="quality" min="10" max="100" value="70" />
+
+        <label for="format">Output Format:</label>
+        <select id="format">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/webp">WebP</option>
+          <option value="image/png">PNG</option>
+        </select>
+
+        <button id="compressButton">Compress Image</button>
+
+        <div id="result"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      const imageInput = document.getElementById("imageInput");
+      const preview = document.getElementById("preview");
+      const quality = document.getElementById("quality");
+      const qualityValue = document.getElementById("qualityValue");
+      const format = document.getElementById("format");
+      const result = document.getElementById("result");
+      const compressButton = document.getElementById("compressButton");
+
+      let selectedImage = null;
+      let originalSize = 0;
+      let downloadUrl = null;
+
+      quality.addEventListener("input", () => {
+        qualityValue.textContent = quality.value + "%";
+      });
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+          alert("Please select a valid image.");
+          return;
+        }
+
+        if (file.type === "image/svg+xml") {
+          alert("Please select a JPG, PNG, WebP or another raster image.");
+          imageInput.value = "";
+          return;
+        }
+
+        selectedImage = file;
+        originalSize = file.size;
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          preview.src = event.target.result;
+          preview.style.display = "block";
+        };
+
+        reader.readAsDataURL(file);
+
+        result.innerHTML = "";
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        downloadUrl = null;
+      });
+
+      compressButton.addEventListener("click", () => {
+        if (!selectedImage) {
+          alert("Please choose an image first.");
+          return;
+        }
+
+        const img = new Image();
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+
+          const ctx = canvas.getContext("2d");
+
+          const selectedFormat = format.value;
+
+          if (selectedFormat === "image/jpeg") {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+          ctx.drawImage(img, 0, 0);
+
+          const compressionQuality = Number(quality.value) / 100;
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                result.textContent =
+                  "Compression failed. Please try another image or format.";
+                return;
+              }
+
+              if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+
+              downloadUrl = URL.createObjectURL(blob);
+
+              const compressedSize = blob.size;
+              const saved =
+                originalSize > 0
+                  ? (
+                      ((originalSize - compressedSize) / originalSize) *
+                      100
+                    ).toFixed(1)
+                  : 0;
+
+              const extension =
+                selectedFormat === "image/jpeg"
+                  ? "jpg"
+                  : selectedFormat === "image/png"
+                    ? "png"
+                    : "webp";
+
+              const fileName = selectedImage.name.replace(/\.[^/.]+$/, "");
+
+              result.innerHTML = `
+                    <h3>Compression Complete!</h3>
+                    <p>Original size: ${(originalSize / 1024).toFixed(2)} KB</p>
+                    <p>Compressed size: ${(compressedSize / 1024).toFixed(2)} KB</p>
+                    <p>Size change: ${saved >= 0 ? saved + "% smaller" : Math.abs(saved) + "% larger"}</p>
+                    <a class="download-link"
+                       href="${downloadUrl}"
+                       download="${fileName}-compressed.${extension}">
+                       Download Compressed Image
+                    </a>
+                `;
+            },
+            selectedFormat,
+            compressionQuality,
+          );
+        };
+
+        img.onerror = () => {
+          result.textContent =
+            "Could not load this image. Please choose another file.";
+        };
+
+        img.src = URL.createObjectURL(selectedImage);
+      });
+    </script>
+  </body>
+</html>
+```

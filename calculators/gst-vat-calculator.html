@@ -1,0 +1,155 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GST VAT Calculator - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .tax-calculator {
+        max-width: 550px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .tax-calculator h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .tax-calculator label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      .tax-calculator input,
+      .tax-calculator select {
+        width: 100%;
+        padding: 12px;
+        margin-top: 7px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        font-size: 16px;
+      }
+
+      .tax-calculator button {
+        width: 100%;
+        padding: 13px;
+        margin-top: 20px;
+        background: #1769aa;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .tax-result {
+        display: none;
+        margin-top: 20px;
+        padding: 18px;
+        background: #eaf4ff;
+        border-radius: 8px;
+      }
+
+      .tax-result p {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Calculators</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="tax-calculator">
+      <h1>GST / VAT Calculator</h1>
+      <p>Calculate tax and final price easily.</p>
+
+      <label for="amount">Product Price (NPR)</label>
+      <input
+        type="number"
+        id="amount"
+        placeholder="Enter product price"
+        min="0"
+        step="any"
+      />
+
+      <label for="taxRate">Tax Rate (%)</label>
+      <select id="taxRate">
+        <option value="13">Nepal VAT (13%)</option>
+        <option value="5">5% GST</option>
+        <option value="10">10% GST</option>
+        <option value="18">18% GST</option>
+        <option value="28">28% GST</option>
+        <option value="0">0% Tax</option>
+      </select>
+
+      <label for="taxType">Calculation Type</label>
+      <select id="taxType">
+        <option value="add">Add tax to price</option>
+        <option value="remove">Remove tax from price</option>
+      </select>
+
+      <button onclick="calculateTax()">Calculate Tax</button>
+
+      <div class="tax-result" id="result">
+        <h3>Calculation Result</h3>
+        <p>Original / Entered Price: NPR <strong id="original"></strong></p>
+        <p>Tax Amount: NPR <strong id="tax"></strong></p>
+        <p>Final Price: NPR <strong id="final"></strong></p>
+      </div>
+    </main>
+
+    <script>
+      function calculateTax() {
+        const amount = Number(document.getElementById("amount").value);
+        const rate = Number(document.getElementById("taxRate").value);
+        const type = document.getElementById("taxType").value;
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+          alert("Please enter a valid price greater than zero.");
+          return;
+        }
+
+        let tax;
+        let finalPrice;
+        let originalPrice;
+
+        if (type === "add") {
+          originalPrice = amount;
+          tax = (amount * rate) / 100;
+          finalPrice = amount + tax;
+        } else {
+          finalPrice = amount;
+          originalPrice = amount / (1 + rate / 100);
+          tax = amount - originalPrice;
+        }
+
+        document.getElementById("original").textContent =
+          originalPrice.toFixed(2);
+
+        document.getElementById("tax").textContent = tax.toFixed(2);
+
+        document.getElementById("final").textContent = finalPrice.toFixed(2);
+
+        document.getElementById("result").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
+```

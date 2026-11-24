@@ -1,0 +1,199 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Merge multiple PDF files into one PDF online for free."
+    />
+    <title>PDF Merger - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .pdf-tool {
+        max-width: 650px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .pdf-tool input {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .pdf-tool button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 12px;
+      }
+
+      #fileList {
+        line-height: 2;
+        overflow-wrap: anywhere;
+      }
+
+      #status {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">PDF Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>📑 PDF Merger</h1>
+        <p>Combine multiple PDF files into one document.</p>
+      </section>
+
+      <section class="pdf-tool">
+        <h2>Merge Your PDF Files</h2>
+
+        <label for="pdfFiles">Select PDF files:</label>
+        <input
+          type="file"
+          id="pdfFiles"
+          accept=".pdf,application/pdf"
+          multiple
+        />
+
+        <h3>Selected Files</h3>
+        <ol id="fileList">
+          <li>No files selected.</li>
+        </ol>
+
+        <button id="mergeButton">Merge PDF Files</button>
+
+        <div id="status"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- PDF-Lib library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <script>
+      const pdfFiles = document.getElementById("pdfFiles");
+      const fileList = document.getElementById("fileList");
+      const mergeButton = document.getElementById("mergeButton");
+      const status = document.getElementById("status");
+
+      let selectedFiles = [];
+      let downloadUrl = null;
+
+      pdfFiles.addEventListener("change", () => {
+        selectedFiles = Array.from(pdfFiles.files);
+
+        fileList.innerHTML = "";
+
+        if (downloadUrl) {
+          URL.revokeObjectURL(downloadUrl);
+          downloadUrl = null;
+        }
+
+        status.innerHTML = "";
+
+        if (selectedFiles.length === 0) {
+          fileList.innerHTML = "<li>No files selected.</li>";
+          return;
+        }
+
+        selectedFiles.forEach((file) => {
+          const li = document.createElement("li");
+          li.textContent = file.name;
+          fileList.appendChild(li);
+        });
+      });
+
+      mergeButton.addEventListener("click", async () => {
+        if (selectedFiles.length < 2) {
+          alert("Please select at least two PDF files.");
+          return;
+        }
+
+        if (!window.PDFLib) {
+          status.textContent =
+            "PDF library could not load. Check your internet connection and reload the page.";
+          return;
+        }
+
+        mergeButton.disabled = true;
+        status.textContent = "Merging PDF files. Please wait...";
+
+        try {
+          const mergedPdf = await PDFLib.PDFDocument.create();
+
+          for (const file of selectedFiles) {
+            const bytes = await file.arrayBuffer();
+
+            const pdf = await PDFLib.PDFDocument.load(bytes);
+            const copiedPages = await mergedPdf.copyPages(
+              pdf,
+              pdf.getPageIndices(),
+            );
+
+            copiedPages.forEach((page) => {
+              mergedPdf.addPage(page);
+            });
+          }
+
+          const mergedBytes = await mergedPdf.save();
+
+          const blob = new Blob([mergedBytes], { type: "application/pdf" });
+
+          if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+
+          downloadUrl = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.download = "nepal-smart-tools-merged.pdf";
+          link.className = "download-link";
+          link.textContent = "Download Merged PDF";
+
+          status.innerHTML = `
+                <h3>PDFs Merged Successfully!</h3>
+                <p>Total files merged: ${selectedFiles.length}</p>
+            `;
+
+          status.appendChild(link);
+        } catch (error) {
+          console.error(error);
+          status.textContent =
+            "Could not merge these PDFs. Check that the files are valid, unencrypted PDFs.";
+        } finally {
+          mergeButton.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
+```

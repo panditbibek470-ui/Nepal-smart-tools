@@ -1,0 +1,335 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Crop images online for free using Nepal Smart Tools."
+    />
+    <title>Image Cropper - Nepal Smart Tools</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .cropper {
+        max-width: 750px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .cropper input,
+      .cropper select {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .cropper button,
+      .download-link {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #1769e0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        margin: 8px 5px 0 0;
+      }
+
+      .crop-area {
+        position: relative;
+        display: none;
+        width: 100%;
+        margin: 15px auto;
+        overflow: hidden;
+        background: #eee;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .crop-area img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        pointer-events: none;
+      }
+
+      .selection {
+        position: absolute;
+        border: 2px dashed #1769e0;
+        background: rgba(23, 105, 224, 0.12);
+        cursor: move;
+        box-sizing: border-box;
+        touch-action: none;
+      }
+
+      .selection::after {
+        content: "Drag to move";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #1769e0;
+        font-size: 13px;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      #result {
+        margin-top: 20px;
+        line-height: 1.8;
+      }
+
+      #croppedPreview {
+        display: none;
+        max-width: 100%;
+        max-height: 300px;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Image Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>✂️ Image Cropper</h1>
+        <p>Select an area of your image and crop it easily.</p>
+      </section>
+
+      <section class="cropper">
+        <h2>Crop Your Image</h2>
+
+        <label for="imageInput">Choose Image:</label>
+        <input type="file" id="imageInput" accept="image/*" />
+
+        <p id="instructions">Upload an image to start cropping.</p>
+
+        <div class="crop-area" id="cropArea">
+          <img id="sourceImage" alt="Image to crop" />
+          <div class="selection" id="selection"></div>
+        </div>
+
+        <label for="format">Output Format:</label>
+        <select id="format">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+
+        <button id="cropButton">Crop Image</button>
+
+        <div id="result"></div>
+        <img id="croppedPreview" alt="Cropped image preview" />
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      const imageInput = document.getElementById("imageInput");
+      const cropArea = document.getElementById("cropArea");
+      const sourceImage = document.getElementById("sourceImage");
+      const selection = document.getElementById("selection");
+      const cropButton = document.getElementById("cropButton");
+      const format = document.getElementById("format");
+      const result = document.getElementById("result");
+      const instructions = document.getElementById("instructions");
+      const croppedPreview = document.getElementById("croppedPreview");
+
+      let imageFile = null;
+      let imageWidth = 0;
+      let imageHeight = 0;
+      let imageObjectUrl = null;
+      let downloadUrl = null;
+
+      let crop = { x: 0, y: 0, w: 0, h: 0 };
+      let dragStart = null;
+
+      function updateSelection() {
+        selection.style.left = crop.x + "px";
+        selection.style.top = crop.y + "px";
+        selection.style.width = crop.w + "px";
+        selection.style.height = crop.h + "px";
+      }
+
+      function limitCrop() {
+        crop.w = Math.min(crop.w, cropArea.clientWidth);
+        crop.h = Math.min(crop.h, cropArea.clientHeight);
+        crop.x = Math.max(0, Math.min(crop.x, cropArea.clientWidth - crop.w));
+        crop.y = Math.max(0, Math.min(crop.y, cropArea.clientHeight - crop.h));
+      }
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
+          alert("Please select a supported image file.");
+          imageInput.value = "";
+          return;
+        }
+
+        imageFile = file;
+
+        if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+        imageObjectUrl = URL.createObjectURL(file);
+
+        sourceImage.onload = () => {
+          imageWidth = sourceImage.naturalWidth;
+          imageHeight = sourceImage.naturalHeight;
+
+          const displayWidth = cropArea.clientWidth;
+          const displayHeight = (displayWidth * imageHeight) / imageWidth;
+
+          cropArea.style.height = displayHeight + "px";
+
+          crop = {
+            x: displayWidth * 0.1,
+            y: displayHeight * 0.1,
+            w: displayWidth * 0.8,
+            h: displayHeight * 0.8,
+          };
+
+          updateSelection();
+          cropArea.style.display = "block";
+          instructions.textContent =
+            "Drag the blue selection to choose your crop area.";
+
+          result.innerHTML = "";
+          croppedPreview.style.display = "none";
+
+          if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+          downloadUrl = null;
+        };
+
+        sourceImage.onerror = () => {
+          alert("Could not load this image.");
+        };
+
+        sourceImage.src = imageObjectUrl;
+      });
+
+      selection.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+
+        dragStart = {
+          pointerX: event.clientX,
+          pointerY: event.clientY,
+          cropX: crop.x,
+          cropY: crop.y,
+        };
+
+        selection.setPointerCapture(event.pointerId);
+      });
+
+      selection.addEventListener("pointermove", (event) => {
+        if (!dragStart) return;
+
+        const scale = cropArea.clientWidth / sourceImage.naturalWidth;
+
+        crop.x = dragStart.cropX + (event.clientX - dragStart.pointerX);
+        crop.y = dragStart.cropY + (event.clientY - dragStart.pointerY);
+
+        limitCrop();
+        updateSelection();
+      });
+
+      selection.addEventListener("pointerup", () => {
+        dragStart = null;
+      });
+
+      selection.addEventListener("pointercancel", () => {
+        dragStart = null;
+      });
+
+      cropButton.addEventListener("click", () => {
+        if (!imageFile || !imageWidth || !crop.w || !crop.h) {
+          alert("Please upload an image first.");
+          return;
+        }
+
+        const scaleX = imageWidth / cropArea.clientWidth;
+        const scaleY = imageHeight / cropArea.clientHeight;
+
+        const sx = Math.round(crop.x * scaleX);
+        const sy = Math.round(crop.y * scaleY);
+        const sw = Math.max(1, Math.round(crop.w * scaleX));
+        const sh = Math.max(1, Math.round(crop.h * scaleY));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = sw;
+        canvas.height = sh;
+
+        const ctx = canvas.getContext("2d");
+        const selectedFormat = format.value;
+
+        if (selectedFormat === "image/jpeg") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, sw, sh);
+        }
+
+        ctx.drawImage(sourceImage, sx, sy, sw, sh, 0, 0, sw, sh);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              result.textContent = "Cropping failed. Please try again.";
+              return;
+            }
+
+            if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+            downloadUrl = URL.createObjectURL(blob);
+
+            croppedPreview.src = downloadUrl;
+            croppedPreview.style.display = "block";
+
+            const extension =
+              selectedFormat === "image/jpeg"
+                ? "jpg"
+                : selectedFormat === "image/png"
+                  ? "png"
+                  : "webp";
+
+            const fileName = imageFile.name.replace(/\.[^/.]+$/, "");
+
+            result.innerHTML = `
+                <h3>Image Cropped Successfully!</h3>
+                <p>Width: ${sw} pixels</p>
+                <p>Height: ${sh} pixels</p>
+                <a class="download-link"
+                   href="${downloadUrl}"
+                   download="${fileName}-cropped.${extension}">
+                   Download Cropped Image
+                </a>
+            `;
+          },
+          selectedFormat,
+          0.92,
+        );
+      });
+    </script>
+  </body>
+</html>
+```

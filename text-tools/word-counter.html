@@ -1,0 +1,163 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Counter - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Count words, characters, sentences and paragraphs online for free."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .word-tool {
+        max-width: 750px;
+        margin: 40px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .word-tool h1 {
+        text-align: center;
+        color: #1769aa;
+      }
+
+      .word-tool textarea {
+        width: 100%;
+        min-height: 220px;
+        padding: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        resize: vertical;
+      }
+
+      .word-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .stat {
+        background: #eaf4ff;
+        padding: 18px;
+        text-align: center;
+        border-radius: 8px;
+      }
+
+      .stat h3 {
+        color: #1769aa;
+        margin: 0 0 8px;
+      }
+
+      .stat p {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .word-tool button {
+        padding: 12px 20px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 7px;
+        background: #1769aa;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Text Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="word-tool">
+      <h1>Word Counter</h1>
+      <p>Enter or paste your text below to count words and characters.</p>
+
+      <textarea
+        id="textInput"
+        placeholder="Start typing or paste your text here..."
+      ></textarea>
+
+      <div class="word-stats">
+        <div class="stat">
+          <h3>Words</h3>
+          <p id="words">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Characters</h3>
+          <p id="characters">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>No Spaces</h3>
+          <p id="noSpaces">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Sentences</h3>
+          <p id="sentences">0</p>
+        </div>
+
+        <div class="stat">
+          <h3>Paragraphs</h3>
+          <p id="paragraphs">0</p>
+        </div>
+      </div>
+
+      <button onclick="clearText()">Clear Text</button>
+    </main>
+
+    <script>
+      const textInput = document.getElementById("textInput");
+
+      function updateCounter() {
+        const text = textInput.value;
+
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+        const characters = text.length;
+
+        const noSpaces = text.replace(/\s/g, "").length;
+
+        const sentences = text.trim()
+          ? (text.match(/[.!?]+(?=\s|$)/g) || []).length
+          : 0;
+
+        const paragraphs = text.trim()
+          ? text.trim().split(/\n\s*\n/).length
+          : 0;
+
+        document.getElementById("words").textContent = words;
+        document.getElementById("characters").textContent = characters;
+        document.getElementById("noSpaces").textContent = noSpaces;
+        document.getElementById("sentences").textContent = sentences;
+        document.getElementById("paragraphs").textContent = paragraphs;
+      }
+
+      function clearText() {
+        textInput.value = "";
+        updateCounter();
+      }
+
+      textInput.addEventListener("input", updateCounter);
+    </script>
+  </body>
+</html>
+```

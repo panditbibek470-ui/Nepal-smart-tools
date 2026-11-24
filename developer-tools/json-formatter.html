@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Formatter - Nepal Smart Tools</title>
+    <meta
+      name="description"
+      content="Format, beautify, and minify JSON online for free. Validate JSON and fix formatting errors instantly."
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <style>
+      .tool-container {
+        max-width: 900px;
+        margin: 35px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .json-input {
+        width: 100%;
+        min-height: 280px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 15px;
+        resize: vertical;
+        box-sizing: border-box;
+      }
+
+      .json-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 18px 0;
+      }
+
+      .json-buttons button {
+        padding: 11px 18px;
+        border: none;
+        border-radius: 6px;
+        background: #1769aa;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .json-buttons button:hover {
+        background: #0d4f85;
+      }
+
+      .json-buttons .clear-btn {
+        background: #dc3545;
+      }
+
+      .json-buttons .clear-btn:hover {
+        background: #b02a37;
+      }
+
+      #message {
+        margin-top: 12px;
+        font-weight: bold;
+      }
+
+      .success {
+        color: green;
+      }
+
+      .error {
+        color: red;
+      }
+
+      @media (max-width: 600px) {
+        .tool-container {
+          margin: 15px;
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="../index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+        <nav>
+          <a href="../index.html">Home</a>
+          <a href="index.html">Developer Tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="tool-container">
+        <h1>JSON Formatter</h1>
+        <p>Format, beautify, minify, and validate your JSON data online.</p>
+
+        <label for="jsonInput"><strong>Enter JSON:</strong></label>
+
+        <textarea
+          id="jsonInput"
+          class="json-input"
+          placeholder="Paste your JSON here..."
+        ></textarea>
+
+        <div class="json-buttons">
+          <button onclick="formatJSON()">Format JSON</button>
+          <button onclick="minifyJSON()">Minify JSON</button>
+          <button onclick="validateJSON()">Validate JSON</button>
+          <button onclick="copyJSON()">Copy Result</button>
+          <button class="clear-btn" onclick="clearJSON()">Clear</button>
+        </div>
+
+        <p id="message" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>© 2026 Nepal Smart Tools. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      const jsonInput = document.getElementById("jsonInput");
+      const message = document.getElementById("message");
+
+      function getJSON() {
+        const text = jsonInput.value.trim();
+
+        if (!text) {
+          throw new Error("Please enter some JSON data.");
+        }
+
+        return JSON.parse(text);
+      }
+
+      function formatJSON() {
+        try {
+          const data = getJSON();
+          jsonInput.value = JSON.stringify(data, null, 4);
+          showMessage("JSON formatted successfully!", "success");
+        } catch (error) {
+          showMessage("Invalid JSON: " + error.message, "error");
+        }
+      }
+
+      function minifyJSON() {
+        try {
+          const data = getJSON();
+          jsonInput.value = JSON.stringify(data);
+          showMessage("JSON minified successfully!", "success");
+        } catch (error) {
+          showMessage("Invalid JSON: " + error.message, "error");
+        }
+      }
+
+      function validateJSON() {
+        try {
+          getJSON();
+          showMessage("Valid JSON! No errors found.", "success");
+        } catch (error) {
+          showMessage("Invalid JSON: " + error.message, "error");
+        }
+      }
+
+      async function copyJSON() {
+        if (!jsonInput.value.trim()) {
+          showMessage("There is nothing to copy.", "error");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(jsonInput.value);
+          showMessage("Copied successfully!", "success");
+        } catch (error) {
+          jsonInput.select();
+          const copied = document.execCommand("copy");
+          showMessage(
+            copied
+              ? "Copied successfully!"
+              : "Unable to copy. Please copy manually.",
+            copied ? "success" : "error",
+          );
+        }
+      }
+
+      function clearJSON() {
+        jsonInput.value = "";
+        showMessage("", "");
+      }
+
+      function showMessage(text, type) {
+        message.textContent = text;
+        message.className = type;
+      }
+    </script>
+  </body>
+</html>
