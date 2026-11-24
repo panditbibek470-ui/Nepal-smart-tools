@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Contact Us - Nepal Smart Tools</title>
+
+    <meta
+      name="description"
+      content="Contact Nepal Smart Tools for questions, suggestions, feedback and technical support."
+    />
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container navbar">
+        <a href="index.html" class="logo">🇳🇵 Nepal Smart Tools</a>
+
+        <nav>
+          <a href="index.html">Home</a>
+          <a href="index.html#categories">Categories</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h1>Contact Us</h1>
+          <p>We would love to hear from you!</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container about-section">
+          <h2>Get in Touch</h2>
+
+          <p>
+            Have a question, suggestion, feedback or problem with one of our
+            tools? Feel free to contact us.
+          </p>
+
+          <h2>Contact Information</h2>
+
+          <p><strong>Website:</strong> Nepal Smart Tools</p>
+
+          <p>
+            <strong>Email:</strong>
+            <a href="mailto:panditbibek470@gmail.com">
+              panditbibek470@gmail.com
+            </a>
+          </p>
+
+          <h2>Send Us a Message</h2>
+
+          <form id="contactForm">
+            <p>
+              <label for="name">Your Name</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="Enter your name"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="email">Your Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="subject">Subject</label>
+              <input
+                type="text"
+                id="subject"
+                placeholder="Enter subject"
+                required
+              />
+            </p>
+
+            <p>
+              <label for="message">Your Message</label>
+              <textarea
+                id="message"
+                rows="6"
+                placeholder="Write your message..."
+                required
+              ></textarea>
+            </p>
+
+            <button type="submit">Send Message</button>
+          </form>
+
+          <p>Our contact email is: panditbibek470@gmail.com</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <h3>🇳🇵 Nepal Smart Tools</h3>
+
+        <p>Your everyday online tools, all in one place.</p>
+
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact</a>
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms.html">Terms</a>
+          <a href="disclaimer.html">Disclaimer</a>
+        </div>
+
+        <p>
+          © <span id="currentYear"></span>
+          Nepal Smart Tools. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+
+    <script>
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const subject = document.getElementById("subject").value;
+          const message = document.getElementById("message").value;
+
+          const body =
+            "Name: " +
+            name +
+            "\n" +
+            "Email: " +
+            email +
+            "\n\n" +
+            "Message:\n" +
+            message;
+
+          const mailto =
+            "mailto:panditbibek470@gmail.com" +
+            "?subject=" +
+            encodeURIComponent(subject) +
+            "&body=" +
+            encodeURIComponent(body);
+
+          window.location.href = mailto;
+        });
+    </script>
+  </body>
+</html>

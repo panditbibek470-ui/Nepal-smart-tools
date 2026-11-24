@@ -1,0 +1,5 @@
+
+User-agent: *
+Allow: /
+
+Sitemap: https://panditbibek470-ui.github.io/Nepal-smart-tools/sitemap.xml
