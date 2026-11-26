@@ -86,12 +86,30 @@ nav a:hover {
 }
 
 .search-box input {
-  flex: 1;
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
+  box-sizing: border-box;
   border: none;
   outline: none;
   padding: 14px;
   font-size: 16px;
+  background: white;
+  color: #222;
+}
+
+.search-box {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  background: white;
+  padding: 6px;
+  border-radius: 10px;
 }
 
 .search-box button {

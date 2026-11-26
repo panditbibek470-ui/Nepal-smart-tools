@@ -126,67 +126,89 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   ];
 
+  if (!button || !input || !suggestions) {
+    console.error("Search elements are missing from index.html.");
+    return;
+  }
+
+  function findTools(query) {
+    const words = query.toLowerCase().trim().split(/\s+/);
+
+    return tools.filter(function (tool) {
+      const searchableText = (tool.name + " " + tool.keywords).toLowerCase();
+
+      return words.every(function (word) {
+        return searchableText.includes(word);
+      });
+    });
+  }
+
   function searchTools() {
-    const query = input.value.trim().toLowerCase();
+    const query = input.value.trim();
 
     if (!query) {
       alert("Please enter a tool name.");
+      input.focus();
       return;
     }
 
-    const found = tools.find(function (tool) {
-      return (tool.name + " " + tool.keywords).toLowerCase().includes(query);
-    });
+    const found = findTools(query);
 
-    if (found) {
-      window.location.href = found.url;
+    if (found.length > 0) {
+      window.location.href = new URL(found[0].url, document.baseURI).href;
     } else {
-      alert("No matching tool found.");
+      alert("No matching tool found. Try another search.");
     }
   }
 
-  // Live suggestions while typing
-  if (input && suggestions) {
-    input.addEventListener("input", function () {
-      const query = input.value.trim().toLowerCase();
+  function showSuggestions() {
+    const query = input.value.trim();
 
-      suggestions.innerHTML = "";
+    suggestions.innerHTML = "";
 
-      if (!query) {
-        return;
+    if (!query) return;
+
+    const matches = findTools(query).slice(0, 6);
+
+    if (matches.length === 0) {
+      suggestions.textContent = "No matching tools found.";
+      return;
+    }
+
+    matches.forEach(function (tool) {
+      const item = document.createElement("div");
+
+      item.className = "search-suggestion";
+      item.textContent = tool.name;
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
+
+      function openTool() {
+        window.location.href = new URL(tool.url, document.baseURI).href;
       }
 
-      const matches = tools.filter(function (tool) {
-        return (tool.name + " " + tool.keywords).toLowerCase().includes(query);
+      item.addEventListener("click", openTool);
+
+      item.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openTool();
+        }
       });
 
-      matches.slice(0, 6).forEach(function (tool) {
-        const item = document.createElement("div");
-
-        item.className = "search-suggestion";
-        item.textContent = tool.name;
-
-        item.addEventListener("click", function () {
-          window.location.href = tool.url;
-        });
-
-        suggestions.appendChild(item);
-      });
-
-      if (matches.length === 0) {
-        suggestions.textContent = "No matching tools found.";
-      }
+      suggestions.appendChild(item);
     });
   }
 
-  // Search button
-  if (button && input) {
-    button.addEventListener("click", searchTools);
+  input.addEventListener("input", showSuggestions);
+  button.addEventListener("click", searchTools);
 
-    input.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        searchTools();
-      }
-    });
-  }
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchTools();
+    }
+  });
+
+  console.log("Nepal Smart Tools search initialized successfully.");
 });
